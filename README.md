@@ -7,17 +7,17 @@ Interface take, and the speed of a burst of data. Black screen, bright colours.
 
 <p align="center">
   <img src="img/menu.png" width="32%" alt="The network of this C64">
-  <img src="img/master-search.png" width="32%" alt="MASTER: searching the other C64">
-  <img src="img/slave-wait.png" width="32%" alt="SLAVE: waiting to be found">
+  <img src="img/host-search.png" width="32%" alt="HOST: searching the other C64">
+  <img src="img/client-wait.png" width="32%" alt="CLIENT: waiting to be found">
 </p>
 <p align="center">
-  <img src="img/link-master.png" width="32%" alt="The link on the first C64">
-  <img src="img/link-slave.png" width="32%" alt="The link on the second C64">
-  <img src="img/burst-slave.png" width="32%" alt="After a burst of 100 x 200 bytes">
+  <img src="img/link-host.png" width="32%" alt="The link on the HOST">
+  <img src="img/link-client.png" width="32%" alt="The link on the CLIENT">
+  <img src="img/burst-client.png" width="32%" alt="After a burst of 100 x 200 bytes">
 </p>
 
 *The screenshots come from two VICEs with an RR-Net cartridge; round trips and speeds in VICE say
-little about real hardware.*
+little about real hardware. On two real C64 Ultimates a socket write and read take 2.5-3.5 ms.*
 
 ## Why
 
@@ -45,7 +45,7 @@ Put [release/linktest.d64](release/linktest.d64) on both C64s (or `linktest.prg`
 
 1. The first screen shows the network of the C64: the Command Interface, every interface with its
    MAC address, IP address, netmask and gateway, and whether the firmware has `$0A`.
-2. On one C64 press **S** (SLAVE: wait to be found), on the other **M** (MASTER: search).
+2. On one C64 press **C** (CLIENT: wait to be found), on the other **H** (HOST: search).
    Or press **I** on both and type the other C64's IP address.
 3. The link screen updates four times a second:
 
@@ -67,12 +67,14 @@ normal LAN scan is therefore not possible. The search tries two things that the 
 stack (lwIP) may allow. The screen shows every step with the firmware's status, so the test also
 tells which of them works:
 
-1. The **SLAVE** opens `$0A` to **0.0.0.0**, remote port 6465, local port 6464. lwIP matches a
+1. The **CLIENT** opens `$0A` to **0.0.0.0**, remote port 6465, local port 6464. lwIP matches a
    connected socket whose remote address is "any" against every sender.
-2. The **MASTER** sends HELLO (with its own IP address) from port 6465 to the subnet's
+2. The **HOST** sends HELLO (with its own IP address) from port 6465 to the subnet's
    **broadcast address**, port 6464, every half second, and listens itself on 0.0.0.0:6464.
-3. The SLAVE answers with ACK (its IP address). Then both open `$0A` to each other, 6464 to 6464,
-   and the link test starts.
+3. The CLIENT answers with ACK (its IP address). Then both open `$0A` to each other, 6464 to 6464,
+   and the HOST starts pinging.
+4. The CLIENT waits up to 3 seconds for those pings. Without them the HELLO was an old one (a HOST
+   that stopped searching), and the CLIENT waits again.
 
 If a step fails, use **I** on both C64s and type the other's IP address: that needs nothing but
 `$0A`.
@@ -83,8 +85,8 @@ If a step fails, use **I** on both C64s and type the other's IP address: that ne
 
 | Type | | |
 |---|---|---|
-| 1 | HELLO | MASTER to the broadcast address |
-| 2 | ACK | SLAVE to the MASTER (three times) |
+| 1 | HELLO | HOST to the broadcast address |
+| 2 | ACK | CLIENT to the HOST (three times) |
 | 3 | PING | |
 | 4 | PONG | the PING with its time, back to the sender |
 | 5 | BYE | when a side leaves the link screen |
@@ -113,8 +115,13 @@ where the same C64s play games online through a server.
 
 ## Status
 
-Tested in VICE (two RR-Net instances): finding each other, the link and the burst. The Ultimate
-side follows the firmware's documentation and the `$0A` pull request; it still needs a test on two
-real C64 Ultimates with the test firmware. Results are welcome in issue #962.
+Tested on two real C64 Ultimates with the `$0A` test firmware (the IP address by hand), and in VICE
+(two RR-Net instances): finding each other, the link and the burst. Results are welcome in issue
+#962.
+
+| Version | |
+|---|---|
+| 1.1 | Reads every waiting message per pass and draws one screen line per pass (1.0 read one message per pass while it redrew the whole screen: on real Ultimates a queue built up, round trips of 4 seconds and 90 % loss). HOST and CLIENT instead of MASTER and SLAVE (keys H and C). The CLIENT checks that the HOST answers (an old HELLO no longer starts a link). The other C64's name also when it was found by its IP address. |
+| 1.0 | First release |
 
 See [NOTICE.md](NOTICE.md) for third-party code.
