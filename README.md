@@ -128,4 +128,11 @@ Tested on two real C64 Ultimates with the `$0A` test firmware (the IP address by
 | 1.1 | Reads every waiting message per pass and draws one screen line per pass (1.0 read one message per pass while it redrew the whole screen: on real Ultimates a queue built up, round trips of 4 seconds and 90 % loss). HOST and CLIENT instead of MASTER and SLAVE (keys H and C). The CLIENT checks that the HOST answers (an old HELLO no longer starts a link). The other C64's name also when it was found by its IP address. |
 | 1.0 | First release |
 
+## In a game
+
+**Wizard of Wor OME** uses the same technique for head-to-head play between two C64 Ultimates, without a server:
+one Ultimate hosts, the other presses RETURN and finds the host on the LAN by itself (the host announces itself
+by UDP broadcast). Verified on two real C64 Ultimates. Download: `wizardofwor.d64` in
+[C64 Game Server 1.2](https://github.com/mfidder2026/Commodore64_Gameserver/releases/tag/v1.2).
+
 See [NOTICE.md](NOTICE.md) for third-party code.
