@@ -55,7 +55,10 @@ Put [release/linktest.d64](release/linktest.d64) on both C64s (or `linktest.prg`
 | PING RATE, SENT, BACK, LOST | pings per second (`+`/`-`), pings sent, pongs back, lost (pings still on the way count until they arrive) |
 | ROUND TRIP | now, and min / avg / max, on the C64's own clock (a 32-bit cycle counter) |
 | PINGS RECEIVED | the other C64's pings, and gaps in their numbering |
-| WRITE / READ | how long one socket write and one read through the Command Interface take (a read waits up to 40 ms for data) |
+| WRITE NOW / MAX | how long one socket write through the Command Interface takes |
+| READ WITH DATA | how long a socket read that brought a message took, now and max |
+| READS <10 MS | reads that brought a message: fast (under 10 ms) and slow. A read waits up to 40 ms when the socket is empty; if it returns as soon as a datagram arrives, nearly all of them are fast |
+| EMPTY READS | reads that found nothing (each waits up to 40 ms) |
 | DATA RECEIVED, SPEED | after `T` on the other C64: 100 messages of 200 bytes as fast as possible |
 
 `R` resets the counters, `Q` goes back to the menu.
@@ -121,6 +124,7 @@ Tested on two real C64 Ultimates with the `$0A` test firmware (the IP address by
 
 | Version | |
 |---|---|
+| 1.2 | Reads that brought data are measured apart from empty ones (fast / slow / empty), to show whether a read that waits returns as soon as a datagram arrives. At most 12 screen lines a second, so drawing delays incoming messages less. |
 | 1.1 | Reads every waiting message per pass and draws one screen line per pass (1.0 read one message per pass while it redrew the whole screen: on real Ultimates a queue built up, round trips of 4 seconds and 90 % loss). HOST and CLIENT instead of MASTER and SLAVE (keys H and C). The CLIENT checks that the HOST answers (an old HELLO no longer starts a link). The other C64's name also when it was found by its IP address. |
 | 1.0 | First release |
 
